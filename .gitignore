@@ -1,6 +1,14 @@
 # Prerequisites
 *.d
 
+bin/*
+
+obj/*
+
+Makefile
+*.h
+*.make
+
 # Object files
 *.o
 *.ko
