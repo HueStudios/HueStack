@@ -26,8 +26,6 @@ typedef struct WorldObject {
 } WorldObject;
 
 typedef struct {
-  float width;
-  float height;
   int screen_w;
   int screen_h;
   float camera_x;
@@ -57,7 +55,7 @@ void world_draw(World* world) {
     object->final_x = final_x;
     object->final_y = final_y;
     object->final_angle = fixed_angle;
-    object->final_depth = final_y - object->z * 40;
+    object->final_depth = final_y + object->z * 64;
   }
   unsigned char sorted = 0;
   while (sorted == 0) {
@@ -73,7 +71,7 @@ void world_draw(World* world) {
   }
   for (unsigned int i = 0; i < world->object_count; i++) {
     WorldObject* object = world->objects[i];
-    stacktile_draw(object->tile, object->final_x, object->final_y, object->final_angle);
+    stacktile_draw(object->tile, object->final_x, object->final_y, object->z, object->final_angle);
   }
 }
 
@@ -103,10 +101,8 @@ WorldObject *newWorldObject(float x, float y, float z, float angle, StackTile* t
   return object;
 }
 
-World *newWorld(float width, float height, int screen_w, int screen_h) {
+World *newWorld(int screen_w, int screen_h) {
   World *world = malloc(sizeof(*world));
-  world->width = width;
-  world->height = height;
   world->screen_w = screen_w;
   world->screen_h = screen_h;
   world->object_count = 0;
@@ -136,13 +132,13 @@ StackTile *newStackTile(char* name_base) {
   return result;
 }
 
-void stacktile_draw(StackTile* target, float x, float y, float angle) {
+void stacktile_draw(StackTile* target, float x, float y, float z, float angle) {
   for (unsigned char i = 0; i < LAYERCOUNT; i++) {
     if (target->layers[i] != NULL) {
       //al_draw_scaled_rotated_bitmap(target->layers[i], 0, 0, x, y + 10, 10, 10, angle, 0);
       float w = al_get_bitmap_width(target->layers[i]);
       float h = al_get_bitmap_height(target->layers[i]);
-      al_draw_scaled_rotated_bitmap(target->layers[i], w/2, h/2, x, y - (1 * i), 1, 1, angle, 0);
+      al_draw_scaled_rotated_bitmap(target->layers[i], w/2, h/2, x, y - (2 * i) - z * 2, 2, 2, angle, 0);
     }
     else {
       break;
