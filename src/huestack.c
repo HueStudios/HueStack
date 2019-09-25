@@ -30,6 +30,8 @@ typedef struct {
   int screen_h;
   float camera_x;
   float camera_y;
+  float offset_x;
+  float offset_y;
   float rotation;
   WorldObject** objects;
   unsigned int object_count;
@@ -49,8 +51,8 @@ void world_draw(World* world) {
     float new_x = relative_x * cos(world->rotation) - sin(world->rotation) * relative_y + world->camera_x;
     float new_y = relative_x * sin(world->rotation) + cos(world->rotation) * relative_y + world->camera_y;
     //printf("%f %f \n", new_x, new_y);
-    float final_x = new_x + world->screen_w / 2 - world->camera_x;
-    float final_y = new_y + world->screen_h / 2 - world->camera_y;
+    float final_x = new_x + world->screen_w / 2 - world->offset_x;
+    float final_y = new_y + world->screen_h / 2 - world->offset_y;
     //stacktile_draw(object->tile, final_x, final_y, fixed_angle);
     object->final_x = final_x;
     object->final_y = final_y;

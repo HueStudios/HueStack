@@ -37,7 +37,9 @@ int main(int argc, char* argv[]) {
   testObject2 = newWorldObject(32, -32, 0, 0, testTile);
   testObject3 = newWorldObject(-32, 32, 0, 0, testTile);
   testWorld->camera_x = 0;
-  testWorld->camera_y = 0;
+  testWorld->camera_y = 100;
+  testWorld->offset_x = 0;
+  testWorld->offset_y = 100;
   world_addObject(testWorld, testObject);
   world_addObject(testWorld, testObject1);
   world_addObject(testWorld, testObject2);
