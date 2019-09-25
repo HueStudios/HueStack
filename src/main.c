@@ -14,11 +14,12 @@ WorldObject* testObject3;
 World* testWorld;
 
 void update(double dt) {
-  angle += 0.01;
+  //testWorld->rotation += M_PI / 2 * dt;
+  testWorld->camera_y += 32 * dt;
+  testWorld->camera_x += 32 * dt;
 }
 
 void draw() {
-  testWorld->rotation = angle;
   world_draw(testWorld);
 }
 
@@ -38,6 +39,7 @@ int main(int argc, char* argv[]) {
   testObject3 = newWorldObject(-32, 32, 0, 0, testTile);
   testWorld->camera_x = 0;
   testWorld->camera_y = 0;
+  testWorld->rotation = M_PI/4;
   world_addObject(testWorld, testObject);
   world_addObject(testWorld, testObject1);
   world_addObject(testWorld, testObject2);
