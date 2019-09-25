@@ -8,7 +8,6 @@
 #include <math.h>
 
 #define LAYERCOUNT 32
-#define SCALE 2
 
 typedef struct {
   ALLEGRO_BITMAP *layers[LAYERCOUNT];
@@ -29,12 +28,8 @@ typedef struct WorldObject {
 typedef struct {
   int screen_w;
   int screen_h;
-  float offset_x;
-  float offset_y;
   float camera_x;
   float camera_y;
-  float focus_x;
-  float focus_y;
   float rotation;
   WorldObject** objects;
   unsigned int object_count;
@@ -46,24 +41,19 @@ typedef struct {
 #include "huestack.h"
 
 void world_draw(World* world) {
-  double distance = sqrt(world->camera_x*world->camera_x + world->camera_y*world->camera_y);
-  double angle = atan2(-world->camera_y, -world->camera_x);
-  angle += M_PI / 4 + M_PI / 2 + M_PI;
-  world->focus_x = cos(angle) * distance;
-  world->focus_y = sin(angle) * distance;
   for (unsigned int i = 0; i < world->object_count; i++) {
     WorldObject* object = world->objects[i];
     float fixed_angle = object->angle + world->rotation;
-    float relative_x = object->x - world->focus_x;
-    float relative_y = object->y - world->focus_y;
-    float new_x = relative_x * cos(world->rotation) - sin(world->rotation) * relative_y + world->focus_x;
-    float new_y = relative_x * sin(world->rotation) + cos(world->rotation) * relative_y + world->focus_y;
+    float relative_x = object->x - world->camera_x;
+    float relative_y = object->y - world->camera_y;
+    float new_x = relative_x * cos(world->rotation) - sin(world->rotation) * relative_y + world->camera_x;
+    float new_y = relative_x * sin(world->rotation) + cos(world->rotation) * relative_y + world->camera_y;
     //printf("%f %f \n", new_x, new_y);
-    float final_x = new_x + world->screen_w / 2 - world->focus_x;
-    float final_y = new_y + world->screen_h / 2 - world->focus_y;
+    float final_x = new_x + world->screen_w / 2 - world->camera_x;
+    float final_y = new_y + world->screen_h / 2 - world->camera_y;
     //stacktile_draw(object->tile, final_x, final_y, fixed_angle);
-    object->final_x = final_x + offset_x;
-    object->final_y = final_y + offset_y;
+    object->final_x = final_x;
+    object->final_y = final_y;
     object->final_angle = fixed_angle;
     object->final_depth = final_y + object->z * 64;
   }
@@ -127,6 +117,7 @@ StackTile *newStackTile(char* name_base) {
   for (unsigned char i = 0; i < LAYERCOUNT; i++) {
     char* buffer = malloc(name_len*sizeof(char));
     snprintf(buffer, name_len, "%s%02d.png", name_base, i);
+    printf("%s\n", buffer);
     if(access(buffer, F_OK) != -1) {
       result->layers[i] = al_load_bitmap(buffer);
       if(result->layers[i] == NULL) {
@@ -144,9 +135,10 @@ StackTile *newStackTile(char* name_base) {
 void stacktile_draw(StackTile* target, float x, float y, float z, float angle) {
   for (unsigned char i = 0; i < LAYERCOUNT; i++) {
     if (target->layers[i] != NULL) {
+      //al_draw_scaled_rotated_bitmap(target->layers[i], 0, 0, x, y + 10, 10, 10, angle, 0);
       float w = al_get_bitmap_width(target->layers[i]);
       float h = al_get_bitmap_height(target->layers[i]);
-      al_draw_scaled_rotated_bitmap(target->layers[i], w/SCALE, h/SCALE, x, y - (SCALE * i) - z * SCALE, SCALE, SCALE, angle, 0);
+      al_draw_scaled_rotated_bitmap(target->layers[i], w/2, h/2, x, y - (2 * i) - z * 2, 2, 2, angle, 0);
     }
     else {
       break;
